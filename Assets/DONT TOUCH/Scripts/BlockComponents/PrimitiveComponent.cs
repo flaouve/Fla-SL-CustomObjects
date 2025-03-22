@@ -49,7 +49,7 @@ public class PrimitiveComponent : SchematicBlock
             if (Color.r <= 1 && Color.g <= 1 && Color.b <= 1)
                 return ColorUtility.ToHtmlStringRGBA(Color);
 
-            return string.Format("{0}:{1}:{2}:{3}", Color.r * 255f, Color.g * 255f, Color.b * 255f, Color.a);
+            return string.Format("{0}:{1}:{2}:{3}", Color.r * 255f, Color.g * 255f, Color.b * 255f, Color.a).Replace(',', '.');
         }
     }
 
