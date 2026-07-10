@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,6 +21,9 @@ public class PickupComponent : SchematicBlock
     [Min(-1)]
     public int NumberOfUses = 1;
 
+    [Tooltip("If true, this pickup cannot be picked up and instead acts as an interactable button.")]
+    public bool Locked = false;
+
     public override BlockType BlockType => BlockType.Pickup;
 
     public override void Compile(SchematicBlockData block)
@@ -33,6 +36,10 @@ public class PickupComponent : SchematicBlock
             { "Chance", Chance },
             { "Uses", NumberOfUses },
         };
+        if (Locked)
+        {
+            block.Properties.Add("Locked", true);
+        }
 
         base.Compile(block);
     }
@@ -47,6 +54,7 @@ public class PickupComponent : SchematicBlock
         pickupComponent.AttachmentsCode = block.Properties.TryGetValue("AttachmentsCode", out object attachmentsCode) ? attachmentsCode.ToString() : "-1";
         pickupComponent.Chance = Convert.ToSingle(block.Properties["Chance"]);
         pickupComponent.NumberOfUses = Convert.ToInt32(block.Properties["Uses"]);
+        pickupComponent.Locked = block.Properties.ContainsKey("Locked");
 
 		base.Decompile(ref gameObject, block, parent);
 	}
