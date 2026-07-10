@@ -67,8 +67,8 @@ public class TextComponent : SchematicBlock
 			string align = alignMatch.Groups[1].Value;
 			text.alignment = align switch
 			{
-				"left" => TextAlignmentOptions.CenterLeft,
-				"right" => TextAlignmentOptions.CenterRight,
+				"left" => TextAlignmentOptions.Left,
+				"right" => TextAlignmentOptions.Right,
 				"justified" => TextAlignmentOptions.Justified,
 				_ => TextAlignmentOptions.Center
 			};
