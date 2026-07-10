@@ -1,4 +1,4 @@
-# SL-CustomObjects Documentation (English)
+# SL-CustomObjects Developer Documentation (English)
 
 Welcome to the official developer documentation for **SL-CustomObjects**, a specialized Unity-side editor framework designed to work seamlessly with **MapEditorReborn (MER)** (LabAPI & EXILED editions) for *SCP: Secret Laboratory*.
 
@@ -47,28 +47,78 @@ The abstract base class for all custom objects. It inherits from Unity's `MonoBe
 
 ---
 
-### 2. Block Components (`Assets/DONT TOUCH/Scripts/BlockComponents/`)
+## 📖 Component Details & Usage Guide
 
-Each custom object in your Unity hierarchy is attached to one of these components to determine how it translates into the game:
-
-* **[PrimitiveComponent.cs](file:///home/flaouve/Projects/scp%20sl/Map/Fla-SL-CustomObjects/Assets/DONT%20TOUCH/Scripts/BlockComponents/PrimitiveComponent.cs)**: Represents standard Unity shapes (Cubes, Spheres, Cylinders, Planes, etc.) converted into server-side game primitives. Handles collision properties, material colors, and physics flags.
-* **[LightComponent.cs](file:///home/flaouve/Projects/scp%20sl/Map/Fla-SL-CustomObjects/Assets/DONT%20TOUCH/Scripts/BlockComponents/LightComponent.cs)**: Emits points of light (Directional, Point, Spot, Area). Controls intensity, color, shadows, and range.
-* **[TeleportComponent.cs](file:///home/flaouve/Projects/scp%20sl/Map/Fla-SL-CustomObjects/Assets/DONT%20TOUCH/Scripts/BlockComponents/TeleportComponent.cs)**: Defines teleporter logic, allowing players or objects to teleport to target coordinates or IDs.
-* **[TextComponent.cs](file:///home/flaouve/Projects/scp%20sl/Map/Fla-SL-CustomObjects/Assets/DONT%20TOUCH/Scripts/BlockComponents/TextComponent.cs)**: Spawns floating 3D text (text toys) in-game with custom font size, content, and color.
-* **[InteractableComponent.cs](file:///home/flaouve/Projects/scp%20sl/Map/Fla-SL-CustomObjects/Assets/DONT%20TOUCH/Scripts/BlockComponents/InteractableComponent.cs)**: Adds custom player interactions (buttons/sensors) with triggers, timers, and game events. Supports interactive animation triggering by referencing a target `Animator` component and specifying state names (including a second state for toggling between states on subsequent interactions).
-* **[WaypointComponent.cs](file:///home/flaouve/Projects/scp%20sl/Map/Fla-SL-CustomObjects/Assets/DONT%20TOUCH/Scripts/BlockComponents/WaypointComponent.cs)**: Positions path nodes or navigation markers for custom scripts.
-* **[WorkstationComponent.cs](file:///home/flaouve/Projects/scp%20sl/Map/Fla-SL-CustomObjects/Assets/DONT%20TOUCH/Scripts/BlockComponents/WorkstationComponent.cs)**: Spawns in-game weapon modification workstations.
-* **[PickupComponent.cs](file:///home/flaouve/Projects/scp%20sl/Map/Fla-SL-CustomObjects/Assets/DONT%20TOUCH/Scripts/BlockComponents/PickupComponent.cs)**: Defines spawnpoints for weapons, keycards, or items with custom properties (ammo attachments, spawn chances, infinite pickups, etc.).
-* **[LockerComponent.cs](file:///home/flaouve/Projects/scp%20sl/Map/Fla-SL-CustomObjects/Assets/DONT%20TOUCH/Scripts/BlockComponents/Locker/LockerComponent.cs)**: Manages in-game lockers, chests, and their loot pools (using `LockerChamber.cs` and `LockerItem.cs`).
-* **[CameraComponent.cs](file:///home/flaouve/Projects/scp%20sl/Map/Fla-SL-CustomObjects/Assets/DONT%20TOUCH/Scripts/Scripts/CameraComponent.cs)**: Places functional SCP-079 cameras.
-* **[EmptyComponent.cs](file:///home/flaouve/Projects/scp%20sl/Map/Fla-SL-CustomObjects/Assets/DONT%20TOUCH/Scripts/BlockComponents/EmptyComponent.cs)**: A dummy/empty node used to group child objects.
+Here are the details for the main components used to design custom maps in Unity and how they map to in-game objects:
 
 ---
 
-### 3. Editor Extensions (`Assets/DONT TOUCH/Scripts/Editors/`)
+### 1. 🟦 PrimitiveComponent (Geometric Shapes)
+Represents standard Unity shapes (Cubes, Spheres, Cylinders, Capsules, Planes) spawned as server-side game primitives.
+* **`Color`**: Defines the object's color. **Supports HDR (greater than 1.0) colors** for bright, neon-like emissive effects in-game.
+* **`Collidable`**: If checked, players cannot pass through this object. If unchecked, players can pass through it.
+* **`Visible`**: If checked, the object is visible. If unchecked, it behaves as an invisible wall.
 
-* **[RightClickMenuExtended.cs](file:///home/flaouve/Projects/scp%20sl/Map/Fla-SL-CustomObjects/Assets/DONT%20TOUCH/Scripts/Editors/RightClickMenuExtended.cs)**: Creates the **"🛠️ MER Blocks"** menu item in the Unity right-click/GameObject menu. This is the recommended way to spawn primitives, lights, and custom interactive objects under your active selection.
-* **[SchematicEditor.cs](file:///home/flaouve/Projects/scp%20sl/Map/Fla-SL-CustomObjects/Assets/DONT%20TOUCH/Scripts/Editors/SchematicEditor.cs)**: Implements custom Inspector windows for the `Schematic` component, adding the "Compile Schematic" button.
+---
+
+### 2. 💡 LightComponent (Lights)
+Spawns Point or Spot lights in-game to illuminate custom rooms.
+* **`LightType`**: `Point` (emits light in all directions, like a light bulb) or `Spot` (emits light in a cone, like a flashlight).
+* **`Color`**: Defines the light color. **Supports HDR colors** allowing light intensity to be boosted way beyond the default 0-255 range.
+* **`Intensity`**: The strength/brightness of the light source.
+* **`Range`**: The maximum reach distance of the light.
+* **`ShadowType`**: Shadows can be set to `Soft`, `Hard`, or `None`.
+
+---
+
+### 3. 📝 TextComponent (Floating 3D Text)
+Spawns floating 3D text objects (`TextToy`) in the game world.
+* **How It Works:** Unity Inspector settings for **Color**, **FontSize**, and **Alignment** are automatically converted into standard HTML formatting tags (e.g., `<color=#FF0000FF>`, `<size=30>`, `<align=center>`) when compiling. The server passes this string directly to the game client, which renders the text with the specified color, size, and alignment.
+* **Restoration (Decompile):** Importing a schematic back into Unity parses these tags and restores the corresponding TMPro component properties automatically.
+
+---
+
+### 4. 🖱️ InteractableComponent (Interaction Colliders)
+Creates invisible trigger colliders that players can interact with by pressing/holding **E**.
+* **`Shape`**: Trigger area shape (`Box` or `Sphere`).
+* **`InteractionDuration`**: Holding time (seconds). Set to `0.0` for instant activation. Set to `3.0` if the player must hold E for 3 seconds.
+* **`IsLocked`**: If true, the interaction is disabled.
+* **`TargetObject`**: The **GameObject** (Cube or parent object) containing the **Animator** component to trigger.
+* **`AnimationStateName`**: The name of the animation state (State) to play on interaction (e.g., `open`).
+* **`AnimationStateName2`**: (Optional) If specified, the interaction will toggle between `AnimationStateName` and `AnimationStateName2` on consecutive interactions (e.g., toggling between `open` and `close`).
+
+---
+
+### 5. 🎒 PickupComponent (Dropped Items)
+Defines spawnpoints for dropped items, keycards, or weapons.
+* **`ItemType`**: The item to spawn (e.g., `KeycardO5`, `GunE11SR`).
+* **`Locked` (Button Mode):** If checked, players cannot pick up the item. Instead, pressing/holding E on the item acts as a button trigger that fires schematic events.
+* **`NumberOfUses` (Spawn/Use Limits):** Controls how many times players can pick up this item:
+  * `1`: The item disappears after being picked up (default).
+  * `5`: The item can be picked up 5 times (respawns 4 times after being picked up).
+  * `-1`: **Infinite/Sonsuz** spawn point (never disappears).
+* **`AttachmentsCode` (Weapon Attachments):** Pre-defines weapon attachment combinations.
+
+#### 🔫 How to Get AttachmentsCode
+1. Join your local or authorized SCP:SL game server.
+2. Hold the weapon you want to customize in your hand.
+3. Open the attachment menu (Tab key) and select your preferred scopes, barrels, stocks, etc.
+4. Open the RA (Remote Admin) console (`~` or `é` key) and type the command:
+   `forceatt`
+5. The console will print a numeric code (e.g., `12456`).
+6. Copy this code and paste it into the **`Attachments Code`** field of the `PickupComponent` in the Unity Inspector.
+
+---
+
+### 6. 📍 WaypointComponent (AI Navigation Nodes)
+Positions navigation markers that bots (SCPs/Dummies) use to find paths.
+* **`Priority`**: Navigation priority for bots (`0` to `255`). `255` is the highest priority. Bots will prioritize paths with higher waypoint priorities.
+
+---
+
+### 7. 🔧 WorkstationComponent (Weapon Workstations)
+Spawns in-game workstation benches for weapon modifications.
+* **`IsInteractable`**: Enables or disables interaction with the workbench.
 
 ---
 
