@@ -13,7 +13,7 @@ public class LightComponent : SchematicBlock
 		block.Properties = new Dictionary<string, object>
 		{
 			{ "LightType", light.type },
-			{ "Color", ColorUtility.ToHtmlStringRGBA(light.color) },
+			{ "Color", GetColorString(light.color) },
 			{ "Intensity", light.intensity },
 			{ "Range", light.range },
 			{ "Shape", light.shape },
@@ -24,6 +24,14 @@ public class LightComponent : SchematicBlock
 		};
 
 		base.Compile(block);
+	}
+
+	private string GetColorString(Color color)
+	{
+		if (color.r <= 1f && color.g <= 1f && color.b <= 1f)
+			return ColorUtility.ToHtmlStringRGBA(color);
+
+		return string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}:{1}:{2}:{3}", color.r * 255f, color.g * 255f, color.b * 255f, color.a);
 	}
 
 	public override void Decompile(ref GameObject gameObject, SchematicBlockData block, Transform parent)
