@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [ExecuteInEditMode]
@@ -6,12 +7,26 @@ public class WaypointComponent : SchematicBlock
 {
 	public override BlockType BlockType => BlockType.Waypoint;
 
-	public override void Compile(SchematicBlockData block) => base.Compile(block);
+	[Tooltip("AI navigation priority. 255 = highest priority (default). Lower = less preferred.")]
+	[Range(0, 255)]
+	public int Priority = 255;
+
+	public override void Compile(SchematicBlockData block)
+	{
+		base.Compile(block);
+		block.Properties = new Dictionary<string, object>
+		{
+			{ "Priority", Priority },
+		};
+	}
 
 	public override void Decompile(ref GameObject gameObject, SchematicBlockData block, Transform parent)
 	{
 		gameObject = Create<GameObject>("Assets/Resources/Blocks/Waypoint.prefab");
 		base.Decompile(ref gameObject, block, parent);
+
+		if (block.Properties != null && block.Properties.TryGetValue("Priority", out object priority))
+			Priority = Convert.ToInt32(priority);
 	}
 
 	private void Start()
@@ -30,3 +45,4 @@ public class WaypointComponent : SchematicBlock
 	private MeshRenderer _renderer;
 
 }
+
