@@ -87,6 +87,9 @@ Oyuncuların **E** tuşuna basarak (anında veya basılı tutarak) etkileşime g
 * **`AnimationStateName`**: E tuşuna basıldığında Animator üzerinde oynatılacak animasyon durumunun (State) tam adı (Örn: `open`).
 * **`AnimationStateName2`**: (Opsiyonel) Eğer bu alana da bir durum yazılırsa (Örn: `close`), E tuşuna her ardışık basıldığında iki durum arasında geçiş (toggle) yapılır.
 
+> [!TIP]
+> Kapı ve diğer nesnelerin etkileşimli animasyon kurulumu için adım adım [Animasyon Kurulum Rehberi (ANIMATION_TUTORIAL_TR.md)](file:///home/flaouve/Projects/scp%20sl/Map/Fla-SL-CustomObjects/Docs/ANIMATION_TUTORIAL_TR.md) sayfasını inceleyin.
+
 ---
 
 ### 5. 🎒 PickupComponent (Yerde Duran Eşya)

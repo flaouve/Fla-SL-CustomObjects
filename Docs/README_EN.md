@@ -87,6 +87,9 @@ Creates invisible trigger colliders that players can interact with by pressing/h
 * **`AnimationStateName`**: The name of the animation state (State) to play on interaction (e.g., `open`).
 * **`AnimationStateName2`**: (Optional) If specified, the interaction will toggle between `AnimationStateName` and `AnimationStateName2` on consecutive interactions (e.g., toggling between `open` and `close`).
 
+> [!TIP]
+> For step-by-step setup of animatable objects and doors, check the [Animation Setup Guide (ANIMATION_TUTORIAL_EN.md)](file:///home/flaouve/Projects/scp%20sl/Map/Fla-SL-CustomObjects/Docs/ANIMATION_TUTORIAL_EN.md).
+
 ---
 
 ### 5. 🎒 PickupComponent (Dropped Items)
