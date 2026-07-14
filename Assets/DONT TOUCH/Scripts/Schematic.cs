@@ -14,6 +14,11 @@ public class Schematic : SchematicBlock
 
     public void CompileSchematic()
     {
+        if (TryGetComponent(out Animator rootAnimator))
+        {
+            Debug.LogWarning("[MER] UYARI: Animator bileşeni Kök (Root) nesne üzerinde bulundu! Kök nesneler şematik bloğu olmadığı için animasyon derlenemez. Lütfen Animator bileşenini altındaki bir boş objeye (Empty block) taşıyın.");
+        }
+
         SetupOutput(out string schematicDirectoryPath);
 
         int rootObjectId = transform.GetInstanceID();
