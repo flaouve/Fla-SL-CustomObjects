@@ -4,45 +4,51 @@ using UnityEngine;
 
 public class LightComponent : SchematicBlock
 {
-	public override BlockType BlockType => BlockType.Light;
+    [Tooltip("Multiplier for Intensity when exporting to JSON. Scale this up if the game is too dark.")]
+    public float GameIntensityMultiplier = 100f;
 
-	public override void Compile(SchematicBlockData block)
-	{
-		TryGetComponent(out Light light);
+    [Tooltip("Multiplier for Range when exporting to JSON. Scale this up if the game range is too small.")]
+    public float GameRangeMultiplier = 100f;
 
-		block.Properties = new Dictionary<string, object>
-		{
-			{ "LightType", light.type },
-			{ "Color", GetColorString(light.color) },
-			{ "Intensity", light.intensity },
-			{ "Range", light.range },
-			{ "Shape", light.shape },
-			{ "SpotAngle", light.spotAngle },
-			{ "InnerSpotAngle", light.innerSpotAngle },
-			{ "ShadowStrength", light.shadowStrength },
-			{ "ShadowType", light.shadows },
-		};
+    public override BlockType BlockType => BlockType.Light;
 
-		base.Compile(block);
-	}
+    public override void Compile(SchematicBlockData block)
+    {
+        TryGetComponent(out Light light);
 
-	private string GetColorString(Color color)
-	{
-		if (color.r <= 1f && color.g <= 1f && color.b <= 1f)
-			return ColorUtility.ToHtmlStringRGBA(color);
+        block.Properties = new Dictionary<string, object>
+        {
+            { "LightType", light.type },
+            { "Color", GetColorString(light.color) },
+            { "Intensity", light.intensity * GameIntensityMultiplier },
+            { "Range", light.range * GameRangeMultiplier },
+            { "Shape", light.shape },
+            { "SpotAngle", light.spotAngle },
+            { "InnerSpotAngle", light.innerSpotAngle },
+            { "ShadowStrength", light.shadowStrength },
+            { "ShadowType", light.shadows },
+        };
 
-		return string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}:{1}:{2}:{3}", color.r * 255f, color.g * 255f, color.b * 255f, color.a);
-	}
+        base.Compile(block);
+    }
 
-	public override void Decompile(ref GameObject gameObject, SchematicBlockData block, Transform parent)
-	{
-		LightType lightType = block.Properties.TryGetValue("LightType", out object objLightType) ? (LightType)Convert.ToInt32(objLightType) : LightType.Point;
-		Light light = Create<GameObject>($"Assets/Resources/Blocks/Lights/{lightType} Light.prefab").GetComponent<Light>();
-		gameObject = light.gameObject;
+    private string GetColorString(Color color)
+    {
+        if (color.r <= 1f && color.g <= 1f && color.b <= 1f)
+            return ColorUtility.ToHtmlStringRGBA(color);
 
-		light.color = PrimitiveComponent.GetColorFromString(block.Properties["Color"].ToString());
-		light.intensity = Convert.ToSingle(block.Properties["Intensity"]);
-		light.range = Convert.ToSingle(block.Properties["Range"]);
+        return string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}:{1}:{2}:{3}", color.r * 255f, color.g * 255f, color.b * 255f, color.a);
+    }
+
+    public override void Decompile(ref GameObject gameObject, SchematicBlockData block, Transform parent)
+    {
+        LightType lightType = block.Properties.TryGetValue("LightType", out object objLightType) ? (LightType)Convert.ToInt32(objLightType) : LightType.Point;
+        Light light = Create<GameObject>($"Assets/Resources/Blocks/Lights/{lightType} Light.prefab").GetComponent<Light>();
+        gameObject = light.gameObject;
+
+        light.color = PrimitiveComponent.GetColorFromString(block.Properties["Color"].ToString());
+        light.intensity = Convert.ToSingle(block.Properties["Intensity"]) / GameIntensityMultiplier;
+        light.range = Convert.ToSingle(block.Properties["Range"]) / GameRangeMultiplier;
 
 		if (block.Properties.TryGetValue("Shadows", out object shadows))
 		{
