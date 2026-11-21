@@ -43,10 +43,27 @@ public class Schematic : SchematicBlock
                 RuntimeAnimatorController runtimeAnimatorController = animator.runtimeAnimatorController;
                 data.AnimatorName = runtimeAnimatorController.name;
 
-                BuildPipeline.BuildAssetBundle(runtimeAnimatorController,
-                    runtimeAnimatorController.animationClips,
-                    Path.Combine(schematicDirectoryPath, runtimeAnimatorController.name),
-                    AssetBundleBuildOptions, EditorUserBuildSettings.activeBuildTarget);
+                List<string> assetPaths = new List<string>();
+                string controllerPath = AssetDatabase.GetAssetPath(runtimeAnimatorController);
+                if (!string.IsNullOrEmpty(controllerPath))
+                    assetPaths.Add(controllerPath);
+
+                if (runtimeAnimatorController.animationClips != null)
+                {
+                    foreach (AnimationClip clip in runtimeAnimatorController.animationClips)
+                    {
+                        if (clip == null) continue;
+                        string clipPath = AssetDatabase.GetAssetPath(clip);
+                        if (!string.IsNullOrEmpty(clipPath) && !assetPaths.Contains(clipPath))
+                            assetPaths.Add(clipPath);
+                    }
+                }
+
+                AssetBundleBuild[] buildMap = new AssetBundleBuild[1];
+                buildMap[0].assetBundleName = runtimeAnimatorController.name;
+                buildMap[0].assetNames = assetPaths.ToArray();
+
+                BuildPipeline.BuildAssetBundles(schematicDirectoryPath, buildMap, AssetBundleBuildOptions, EditorUserBuildSettings.activeBuildTarget);
             }
 
             if (block.TryGetComponent(out rigidbody))
